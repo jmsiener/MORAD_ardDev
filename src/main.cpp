@@ -579,8 +579,5 @@ void loop() {
   display.println((float)inCV[3]/DAC_RANGE);
   display.display();
   */
- 
   vTaskDelay( 1000 );
-
-
 }
