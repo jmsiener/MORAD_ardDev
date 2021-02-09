@@ -187,120 +187,106 @@ TaskHandle_t cvSample = NULL;
 
 void OSC_UDP_TX(void * pvParameters) {   
   for (;;) {
-    //OSCBundle bundl;
+    OSCBundle bundl;
     if (gateInFlag[0] == 1) {
-      OSCMessage cv("/CV0");
-      cv.add(inCV[0]);
-      Udp.beginPacket(outIp, outPort);
-      cv.send(Udp);
-      Udp.endPacket();
-      cv.empty();
+      bundl.add("/CV0").add(inCV[0]);
     }
     if (gateInFlag[0] == 1 && gateIn[0] == 1) {
-      OSCMessage gate("/Gate0");
-      gate.add((int)gateIn[0]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      bundl.add("/Gate0").add((int)gateIn[0]);
       gateInFlag[0] = 0;
     }
     else if (gateInFlag[0] == 1) {
-      OSCMessage gate("/Gate0");
-      gate.add((int)gateIn[0]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      bundl.add("/Gate0").add((int)gateIn[0]);
       gateInFlag[0] = !gateInFlag[0];
     }
 
     if (gateInFlag[1] == 1) {
-      OSCMessage cv("/CV1");
-      cv.add(inCV[1]);
-      Udp.beginPacket(outIp, outPort);
-      cv.send(Udp);
-      Udp.endPacket();
-      cv.empty();
+      bundl.add("/CV1").add(inCV[1]);
     }
     if (gateInFlag[1] == 1 && gateIn[1] == 1) {
-      OSCMessage gate("/Gate1");
-      gate.add((int)gateIn[1]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
-      gateIn[1] = !gateIn[1];
+      //OSCMessage gate("/Gate1");
+      bundl.add("/Gate1").add((int)gateIn[1]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      //Udp.endPacket();
+      //gate.empty();
+      //gateIn[1] = !gateIn[1];
       gateInFlag[1] = 0;
     }
     else if (gateInFlag[1] == 1) {
-      OSCMessage gate("/Gate1");
-      gate.add((int)gateIn[1]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      //OSCMessage gate("/Gate1");
+      bundl.add("/Gate1").add((int)gateIn[1]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      //Udp.endPacket();
+      //gate.empty();
       gateInFlag[1] = 0;
     }
     
     if (gateInFlag[2] == 1) {
-      OSCMessage cv("/CV2");
-      cv.add(inCV[2]);
-      Udp.beginPacket(outIp, outPort);
-      cv.send(Udp);
-      Udp.endPacket();
-      cv.empty();
+      //OSCMessage cv("/CV2");
+      bundl.add("CV2").add(inCV[2]);
+      //Udp.beginPacket(outIp, outPort);
+      //cv.send(Udp);
+      //Udp.endPacket();
+      //cv.empty();
     }
     if (gateInFlag[2] == 1 && gateIn[2] == 1) {
-      OSCMessage gate("/Gate2");
-      gate.add((int)gateIn[2]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      //OSCMessage gate("/Gate2");
+      bundl.add("/Gate2").add((int)gateIn[2]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      //Udp.endPacket();
+      //gate.empty();
       gateInFlag[2] = 0;
     }
     else if (gateInFlag[2] == 1){
-      OSCMessage gate("/Gate2");
-      gate.add((int)gateIn[2]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      //OSCMessage gate("/Gate2");
+      bundl.add("/Gate2").add((int)gateIn[2]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      ///Udp.endPacket();
+      //gate.empty();
       gateInFlag[2] = 0;
     }
 
     if (gateInFlag[3] == 1) {
-      OSCMessage cv("/CV3");
-      cv.add(inCV[3]);
-      Udp.beginPacket(outIp, outPort);
-      cv.send(Udp);
-      Udp.endPacket();
-      cv.empty();
+      //OSCMessage cv("/CV3");
+      bundl.add("/CV3").add(inCV[3]);
+      //Udp.beginPacket(outIp, outPort);
+      //cv.send(Udp);
+      //Udp.endPacket();
+      //cv.empty();
     }
     if (gateInFlag[3] == 1 && gateIn[3] == 1) {
-      OSCMessage gate("/Gate3");
-      gate.add((int)gateIn[3]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      //OSCMessage gate("/Gate3");
+      bundl.add("/Gate3").add((int)gateIn[3]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      //Udp.endPacket();
+      //gate.empty();
       gateInFlag[3] = 0;
       }
     else if (gateInFlag[3] == 1) {
-      OSCMessage gate("/Gate3");
-      gate.add((int)gateIn[3]);
-      Udp.beginPacket(outIp, outPort);
-      gate.send(Udp);
-      Udp.endPacket();
-      gate.empty();
+      //OSCMessage gate("/Gate3");
+      bundl.add("/Gate3").add((int)gateIn[3]);
+      //Udp.beginPacket(outIp, outPort);
+      //gate.send(Udp);
+      //Udp.endPacket();
+      //gate.empty();
       gateInFlag[3] = 0;
     }
-    //Udp.beginPacket(outIp, outPort);
-    //bundl.send(Udp); // send the bytes to the SLIP stream
-    //Udp.endPacket(); // mark the end of the OSC Packet
-    //bundl.empty();   // free space occupied by message   
-    vTaskDelay( 1 );
+    
+    if (bundl.size() > 0) {
+    Udp.beginPacket(outIp, outPort);
+    bundl.send(Udp); // send the bytes to the SLIP stream
+    Udp.endPacket(); // mark the end of the OSC Packet
+    bundl.empty();   // free space occupied by message   
+    vTaskDelay(1);
+    }
+    else {
+      vTaskDelay( 1 );
+      }
     
   }
 }
@@ -537,15 +523,6 @@ void setup() {
       1);          /* pin task to core 1 */
 
   xTaskCreatePinnedToCore(
-      check_status,   /* Task function. */
-      "status check", /* name of task. */
-      1024,          /* Stack size of task */
-      NULL,           /* parameter of the task */
-      6,              /* priority of the task */
-      &status_check,  /* Task handle to keep track of created task */
-      1);             /* pin task to core 1 */
-
-  xTaskCreatePinnedToCore(
       OSC_UDP_TX,   /* Task function. */
       "osc udp tx", /* name of task. */
       10000,        /* Stack size of task */
@@ -562,12 +539,35 @@ void setup() {
       3,          /* priority of the task */
       &cvSample,  /* Task handle to keep track of created task */
       1);         /* pin task to core 1 */
+  xTaskCreatePinnedToCore(
+      check_status,   /* Task function. */
+      "status check", /* name of task. */
+      1024,          /* Stack size of task */
+      NULL,           /* parameter of the task */
+      6,              /* priority of the task */
+      &status_check,  /* Task handle to keep track of created task */
+      1);             /* pin task to core 1 */
 }
 
 void loop() {
   //vTaskDelay(1000 / portTICK_PERIOD_MS);
   //delay(10);
-  vTaskDelay( 2000 );
+  
+  //test test
+  mr_spi.CVout(2, 1000);
+  vTaskDelay( 250 );
+  mr_spi.CVout(2, 2000);
+  vTaskDelay( 250 );
+  mr_spi.CVout(2, 3000);
+  vTaskDelay( 250 );
+  mr_spi.CVout(2, 4000);
+  vTaskDelay( 250 );
+  mr_spi.CVout(2, 3000);
+  vTaskDelay( 250 );
+  mr_spi.CVout(2, 2000);
+  vTaskDelay( 250 );  
+
+  
   //vTaskDelete( NULL );
   //vTaskDelay(portMAX_DELAY);
   /*
