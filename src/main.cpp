@@ -195,76 +195,36 @@ void OSC_UDP_TX(void * pvParameters) {
       bundl.add("/CV1").add(inCV[1]);
     }
     if (gateInFlag[1] == 1 && gateIn[1] == 1) {
-      //OSCMessage gate("/Gate1");
       bundl.add("/Gate1").add((int)gateIn[1]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      //Udp.endPacket();
-      //gate.empty();
-      //gateIn[1] = !gateIn[1];
       gateInFlag[1] = 0;
     }
     else if (gateInFlag[1] == 1) {
-      //OSCMessage gate("/Gate1");
       bundl.add("/Gate1").add((int)gateIn[1]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      //Udp.endPacket();
-      //gate.empty();
       gateInFlag[1] = 0;
     }
     
     if (gateInFlag[2] == 1) {
-      //OSCMessage cv("/CV2");
-      bundl.add("CV2").add(inCV[2]);
-      //Udp.beginPacket(outIp, outPort);
-      //cv.send(Udp);
-      //Udp.endPacket();
-      //cv.empty();
+      bundl.add("/CV2").add(inCV[2]);
     }
     if (gateInFlag[2] == 1 && gateIn[2] == 1) {
-      //OSCMessage gate("/Gate2");
       bundl.add("/Gate2").add((int)gateIn[2]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      //Udp.endPacket();
-      //gate.empty();
       gateInFlag[2] = 0;
     }
     else if (gateInFlag[2] == 1){
-      //OSCMessage gate("/Gate2");
+
       bundl.add("/Gate2").add((int)gateIn[2]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      ///Udp.endPacket();
-      //gate.empty();
       gateInFlag[2] = 0;
     }
 
     if (gateInFlag[3] == 1) {
-      //OSCMessage cv("/CV3");
       bundl.add("/CV3").add(inCV[3]);
-      //Udp.beginPacket(outIp, outPort);
-      //cv.send(Udp);
-      //Udp.endPacket();
-      //cv.empty();
     }
     if (gateInFlag[3] == 1 && gateIn[3] == 1) {
-      //OSCMessage gate("/Gate3");
       bundl.add("/Gate3").add((int)gateIn[3]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      //Udp.endPacket();
-      //gate.empty();
       gateInFlag[3] = 0;
       }
     else if (gateInFlag[3] == 1) {
-      //OSCMessage gate("/Gate3");
       bundl.add("/Gate3").add((int)gateIn[3]);
-      //Udp.beginPacket(outIp, outPort);
-      //gate.send(Udp);
-      //Udp.endPacket();
-      //gate.empty();
       gateInFlag[3] = 0;
     }
     
