@@ -176,11 +176,20 @@ volatile float inCVfloat[4] = {0,0,0,0};
 
 TaskHandle_t cvSample = NULL;
 
+QueueHandle_t queueCV;
+
 void OSC_UDP_TX(void * pvParameters) {   
   for (;;) {
+    short receiveCV[4];
+    xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
+    /*int i;
+    for (i=0; i<NUM_CHANNELS; i++) {
+      Serial.print("CV" + (String)i + " ");
+      Serial.println(receiveCV[i]);
+    }*/
     OSCBundle bundl;
     if (gateInFlag[0] == 1) {
-      bundl.add("/CV0").add(inCV[0]);
+      bundl.add("/CV0").add(receiveCV[0]);
     }
     if (gateInFlag[0] == 1 && gateIn[0] == 1) {
       bundl.add("/Gate0").add((int)gateIn[0]);
@@ -192,7 +201,7 @@ void OSC_UDP_TX(void * pvParameters) {
     }
 
     if (gateInFlag[1] == 1) {
-      bundl.add("/CV1").add(inCV[1]);
+      bundl.add("/CV1").add(receiveCV[1]);
     }
     if (gateInFlag[1] == 1 && gateIn[1] == 1) {
       bundl.add("/Gate1").add((int)gateIn[1]);
@@ -204,7 +213,7 @@ void OSC_UDP_TX(void * pvParameters) {
     }
     
     if (gateInFlag[2] == 1) {
-      bundl.add("/CV2").add(inCV[2]);
+      bundl.add("/CV2").add(receiveCV[2]);
     }
     if (gateInFlag[2] == 1 && gateIn[2] == 1) {
       bundl.add("/Gate2").add((int)gateIn[2]);
@@ -217,7 +226,7 @@ void OSC_UDP_TX(void * pvParameters) {
     }
 
     if (gateInFlag[3] == 1) {
-      bundl.add("/CV3").add(inCV[3]);
+      bundl.add("/CV3").add(receiveCV[3]);
     }
     if (gateInFlag[3] == 1 && gateIn[3] == 1) {
       bundl.add("/Gate3").add((int)gateIn[3]);
@@ -268,37 +277,43 @@ void OSC_UDP_TX(void * pvParameters) {   //2-5-2021 figure out how to do this ri
 }
 */
 
-void IRAM_ATTR gateSample0(){
-  gateIn[0] = !gateIn[0];
+void IRAM_ATTR gateSample0(){  
+  gateIn[0] = !digitalRead(GATEin_0);
   gateInFlag[0] = 1;
 }
 
 void IRAM_ATTR gateSample1(){
-  gateIn[1] = !gateIn[1];
+  gateIn[1] = !digitalRead(gateIn[1]);
   gateInFlag[1] = 1;
 }
 
 void IRAM_ATTR gateSample2(){
-  gateIn[2] = !gateIn[2];
+  gateIn[2] = !digitalRead(gateIn[2]);
   gateInFlag[2] = 1;
 }
 
 void IRAM_ATTR gateSample3(){
-  gateIn[3] = !gateIn[3];
+  gateIn[3] = !digitalRead(gateIn[3]);
   gateInFlag[3] = 1;
 }
+
 
 
 void SampleCV(void * pvParameters) {
   for (;;) {
     int i;
+    unsigned short sendCV[4] = {0,0,0,0};
     for (i = 0; i < NUM_CHANNELS; i++) {
       inCV[i] = {mr_spi.CVin(i)};
-      inCVfloat[i] = {(float)inCV[i]};
-    vTaskDelay( 1 ); 
+      inCVfloat[i] = inCV[i]/DAC_RANGE;
+      sendCV[i] = {mr_spi.CVin(i)};
+      //Serial.print("size of sendCV ");
+      //Serial.println(sizeof(sendCV));
     }
+    xQueueSend(queueCV, &sendCV, portMAX_DELAY);
+    vTaskDelay( 1 ); 
   }
-}
+} 
 
 void setup() {
   Serial.begin(115200);
@@ -459,6 +474,8 @@ void setup() {
 
   sampleGate = xSemaphoreCreateMutex();
 
+  queueCV = xQueueCreate( 1, 8);
+
   attachInterrupt(GATEin_0, gateSample0, CHANGE);
   attachInterrupt(GATEin_1, gateSample1, CHANGE);
   attachInterrupt(GATEin_2, gateSample2, CHANGE);
@@ -490,6 +507,7 @@ void setup() {
       3,          /* priority of the task */
       &cvSample,  /* Task handle to keep track of created task */
       1);         /* pin task to core 1 */
+
   xTaskCreatePinnedToCore(
       check_status,   /* Task function. */
       "status check", /* name of task. */
@@ -523,7 +541,7 @@ void loop() {
 
 
   
-  //vTaskDelete( NULL );
+  vTaskDelete( NULL );
   //vTaskDelay(portMAX_DELAY);
 
   /*
@@ -541,5 +559,5 @@ void loop() {
   display.println((float)inCV[3]/DAC_RANGE);
   display.display();
   */
-  vTaskDelay( 1000 );
+  //vTaskDelay( 1000 );
 }
