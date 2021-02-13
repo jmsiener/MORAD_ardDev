@@ -178,76 +178,51 @@ TaskHandle_t cvSample = NULL;
 
 QueueHandle_t queueCV;
 
-void OSC_UDP_TX(void * pvParameters) {   
-  for (;;) {
+void OSC_UDP_TX(void *pvParameters){
+  for (;;){
     short receiveCV[4];
     xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
-    /*int i;
-    for (i=0; i<NUM_CHANNELS; i++) {
-      Serial.print("CV" + (String)i + " ");
-      Serial.println(receiveCV[i]);
-    }*/
+
     OSCBundle bundl;
-    if (gateInFlag[0] == 1) {
+    if (gateInFlag[0] == 1){
       bundl.add("/CV0").add(receiveCV[0]);
-    }
-    if (gateInFlag[0] == 1 && gateIn[0] == 1) {
+      }
+    if (gateInFlag[0] == 1){
       bundl.add("/Gate0").add((int)gateIn[0]);
       gateInFlag[0] = 0;
-    }
-    else if (gateInFlag[0] == 1) {
-      bundl.add("/Gate0").add((int)gateIn[0]);
-      gateInFlag[0] = !gateInFlag[0];
-    }
-
-    if (gateInFlag[1] == 1) {
+      }
+    if (gateInFlag[1] == 1){
       bundl.add("/CV1").add(receiveCV[1]);
-    }
-    if (gateInFlag[1] == 1 && gateIn[1] == 1) {
+      }
+    if (gateInFlag[1] == 1){
       bundl.add("/Gate1").add((int)gateIn[1]);
       gateInFlag[1] = 0;
-    }
-    else if (gateInFlag[1] == 1) {
-      bundl.add("/Gate1").add((int)gateIn[1]);
-      gateInFlag[1] = 0;
-    }
-    
-    if (gateInFlag[2] == 1) {
+      }
+    if (gateInFlag[2] == 1){
       bundl.add("/CV2").add(receiveCV[2]);
-    }
-    if (gateInFlag[2] == 1 && gateIn[2] == 1) {
+      }
+    if (gateInFlag[2] == 1){
       bundl.add("/Gate2").add((int)gateIn[2]);
       gateInFlag[2] = 0;
-    }
-    else if (gateInFlag[2] == 1){
-
-      bundl.add("/Gate2").add((int)gateIn[2]);
-      gateInFlag[2] = 0;
-    }
-
-    if (gateInFlag[3] == 1) {
+      }
+    if (gateInFlag[3] == 1){
       bundl.add("/CV3").add(receiveCV[3]);
-    }
-    if (gateInFlag[3] == 1 && gateIn[3] == 1) {
+      }
+    if (gateInFlag[3] == 1){
       bundl.add("/Gate3").add((int)gateIn[3]);
       gateInFlag[3] = 0;
       }
-    else if (gateInFlag[3] == 1) {
-      bundl.add("/Gate3").add((int)gateIn[3]);
-      gateInFlag[3] = 0;
-    }
-    
-    if (bundl.size() > 0) {
-    Udp.beginPacket(outIp, outPort);
-    bundl.send(Udp); // send the bytes to the SLIP stream
-    Udp.endPacket(); // mark the end of the OSC Packet
-    bundl.empty();   // free space occupied by message   
-    vTaskDelay(1);
-    }
-    else {
-      vTaskDelay( 1 );
+
+    if (bundl.size() > 0){
+      Udp.beginPacket(outIp, outPort);
+      bundl.send(Udp); // send the bytes to the SLIP stream
+      Udp.endPacket(); // mark the end of the OSC Packet
+      bundl.empty();   // free space occupied by message
+      vTaskDelay(1);
       }
-    
+    else{
+      vTaskDelay(1);
+    }
   }
 }
 
@@ -255,10 +230,12 @@ void OSC_UDP_TX(void * pvParameters) {
 void OSC_UDP_TX(void * pvParameters) {   //2-5-2021 figure out how to do this right
   for (;;) {
     OSCBundle bundl;
+    short receiveCV[4];
+    xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
     int i;
     for (i=0; i<NUM_CHANNELS; i++) {
-      if (gateIn[i] == 1 && gateInFlag[i]) {
-        bundl.add("/CV/").add(i).add((float)inCV[0]/DAC_RANGE);
+      if (gateInFlag[i] == 1) {
+        bundl.add("/CV" + (String)i ).add((float)inCV[0]/DAC_RANGE);
         bundl.add("/Gate").add(i).add(gateIn[i]);
         gateInFlag[i] = !gateInFlag[i];
       }
@@ -283,17 +260,17 @@ void IRAM_ATTR gateSample0(){
 }
 
 void IRAM_ATTR gateSample1(){
-  gateIn[1] = !digitalRead(gateIn[1]);
+  gateIn[1] = !digitalRead(GATEin_1);
   gateInFlag[1] = 1;
 }
 
 void IRAM_ATTR gateSample2(){
-  gateIn[2] = !digitalRead(gateIn[2]);
+  gateIn[2] = !digitalRead(GATEin_2);
   gateInFlag[2] = 1;
 }
 
 void IRAM_ATTR gateSample3(){
-  gateIn[3] = !digitalRead(gateIn[3]);
+  gateIn[3] = !digitalRead(GATEin_3);
   gateInFlag[3] = 1;
 }
 
