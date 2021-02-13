@@ -140,6 +140,8 @@ TaskHandle_t osc_udp_rx;
 
 void OSC_UDP_RX(void * pvParameters) {
   for (;;) {
+    
+    //Serial.println("OSC RX running");
     OSCMessage msg;
     int size = Udp.parsePacket();
     if (size > 0) {    
@@ -162,6 +164,13 @@ void OSC_UDP_RX(void * pvParameters) {
         Serial.println(errorcode);
       }
     }
+    /*static unsigned long prevMillis = millis();
+    if (millis() - prevMillis > 1000)
+		{
+			unsigned long remainingStack = uxTaskGetStackHighWaterMark(NULL);
+			Serial.printf("OSC RX Free stack:%lu\n", remainingStack);
+			prevMillis = millis();
+		}*/
     vTaskDelay( 1 );
   }
 }
@@ -182,37 +191,35 @@ void OSC_UDP_TX(void *pvParameters){
   for (;;){
     short receiveCV[4];
     xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
-
+    //Serial.println("OSC TX running");
     OSCBundle bundl;
     if (gateInFlag[0] == 1){
       bundl.add("/CV0").add(receiveCV[0]);
-      }
-    if (gateInFlag[0] == 1){
       bundl.add("/Gate0").add((int)gateIn[0]);
       gateInFlag[0] = 0;
       }
     if (gateInFlag[1] == 1){
       bundl.add("/CV1").add(receiveCV[1]);
-      }
-    if (gateInFlag[1] == 1){
       bundl.add("/Gate1").add((int)gateIn[1]);
       gateInFlag[1] = 0;
       }
     if (gateInFlag[2] == 1){
       bundl.add("/CV2").add(receiveCV[2]);
-      }
-    if (gateInFlag[2] == 1){
       bundl.add("/Gate2").add((int)gateIn[2]);
       gateInFlag[2] = 0;
       }
     if (gateInFlag[3] == 1){
       bundl.add("/CV3").add(receiveCV[3]);
-      }
-    if (gateInFlag[3] == 1){
       bundl.add("/Gate3").add((int)gateIn[3]);
       gateInFlag[3] = 0;
       }
-
+    /*static unsigned long prevMillis = millis();
+    if (millis() - prevMillis > 1000)
+		{
+			unsigned long remainingStack = uxTaskGetStackHighWaterMark(NULL);
+			Serial.printf("OSC TX Free stack:%lu\n", remainingStack);
+			prevMillis = millis();
+		}*/
     if (bundl.size() > 0){
       Udp.beginPacket(outIp, outPort);
       bundl.send(Udp); // send the bytes to the SLIP stream
@@ -278,6 +285,7 @@ void IRAM_ATTR gateSample3(){
 
 void SampleCV(void * pvParameters) {
   for (;;) {
+    //Serial.println("CV Sample running");
     int i;
     unsigned short sendCV[4] = {0,0,0,0};
     for (i = 0; i < NUM_CHANNELS; i++) {
@@ -288,6 +296,14 @@ void SampleCV(void * pvParameters) {
       //Serial.println(sizeof(sendCV));
     }
     xQueueSend(queueCV, &sendCV, portMAX_DELAY);
+    
+    /*static unsigned long prevMillis = millis();
+    if (millis() - prevMillis > 1000)
+		{
+			unsigned long remainingStack = uxTaskGetStackHighWaterMark(NULL);
+			Serial.printf("Sample CV Free stack:%lu\n", remainingStack);
+			prevMillis = millis();
+		}*/
     vTaskDelay( 1 ); 
   }
 } 
@@ -460,8 +476,8 @@ void setup() {
 
   xTaskCreatePinnedToCore(
       OSC_UDP_RX,  /* Task function. */
-      "OSC_UDP",   /* name of task. */
-      20000,       /* Stack size of task */
+      "osc udp rx",   /* name of task. */
+      2000,       /* Stack size of task */
       NULL,        /* parameter of the task */
       1,           /* priority of the task */
       &osc_udp_rx, /* Task handle to keep track of created task */
@@ -470,16 +486,16 @@ void setup() {
   xTaskCreatePinnedToCore(
       OSC_UDP_TX,   /* Task function. */
       "osc udp tx", /* name of task. */
-      10000,        /* Stack size of task */
+      2000,        /* Stack size of task */
       NULL,         /* parameter of the task */
-      2,            /* priority of the task */
+      1,            /* priority of the task */
       &osc_udp_tx,  /* Task handle to keep track of created task */
       1);           /* pin task to core 1 */
 
   xTaskCreatePinnedToCore(
       SampleCV,   /* Task function. */
       "SampleCV", /* name of task. */
-      20000,      /* Stack size of task */
+      1650,      /* Stack size of task */
       NULL,       /* parameter of the task */
       3,          /* priority of the task */
       &cvSample,  /* Task handle to keep track of created task */
