@@ -15,7 +15,7 @@
 
 
 uint16_t apTimeout = 1; //AP Timeout to automatically load saved config data
-const IPAddress outIp(10,0,0,231);        // remote IP (not needed for receive)
+const IPAddress outIp(10,0,0,231);        // remote IP that you'll need to modify to send messages anywhere you want to go.  Not a feature right now lol.
 const unsigned int outPort = 10111;          // remote port (not needed for receive)
 const unsigned int localPort = 10101;        // local port to listen for UDP packets (here's where we send the packets)
 
@@ -141,7 +141,7 @@ SemaphoreHandle_t sampleGate3;
 
 TaskHandle_t osc_udp_rx;
 
-void OSC_UDP_RX(void * pvParameters) {
+void OSC_UDP_RX(void * pvParameters) {  //Task for receiving OSC messages
   for (;;) {
     
     //Serial.println("OSC RX running");
@@ -190,7 +190,7 @@ TaskHandle_t cvSample = NULL;
 
 QueueHandle_t queueCV;
 
-void OSC_UDP_TX(void *pvParameters){
+void OSC_UDP_TX(void *pvParameters){  //Task for sending OSC messages.  Sends CV based on corresponding gate
   for (;;){
     short receiveCV[4];
     xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
@@ -274,21 +274,18 @@ void IRAM_ATTR gateSample0(){
   gateInFlag[0] = 1;
   xSemaphoreGiveFromISR(sampleGate0, NULL);
 }
-
 void IRAM_ATTR gateSample1(){
   xSemaphoreTakeFromISR(sampleGate1, 0);
   gateIn[1] = !digitalRead(GATEin_1);
   gateInFlag[1] = 1;
   xSemaphoreGiveFromISR(sampleGate1, NULL);
 }
-
 void IRAM_ATTR gateSample2(){
   xSemaphoreTakeFromISR(sampleGate2, 0);
   gateIn[2] = !digitalRead(GATEin_2);
   gateInFlag[2] = 1;
   xSemaphoreGiveFromISR(sampleGate2, NULL);
 }
-
 void IRAM_ATTR gateSample3(){
   xSemaphoreTakeFromISR(sampleGate3, 0);
   gateIn[3] = !digitalRead(GATEin_3);
@@ -296,16 +293,14 @@ void IRAM_ATTR gateSample3(){
   xSemaphoreGiveFromISR(sampleGate3, NULL);
 }
 
-
-
-void SampleCV(void * pvParameters) {
+void SampleCV(void * pvParameters) {  //task for sampling CV (I'm positive this isn't the best way to do this)
   for (;;) {
     //Serial.println("CV Sample running");
     int i;
     unsigned short sendCV[4] = {0,0,0,0};
     for (i = 0; i < NUM_CHANNELS; i++) {
       inCV[i] = {mr_spi.CVin(i)};
-      inCVfloat[i] = inCV[i]/DAC_RANGE;
+      //inCVfloat[i] = inCV[i]/DAC_RANGE; //math to implement sending the same format that MORAD expects to receive. Has no purpose at the moment other than slowing things down
       sendCV[i] = {mr_spi.CVin(i)};
       //Serial.print("size of sendCV ");
       //Serial.println(sizeof(sendCV));
@@ -347,7 +342,7 @@ void setup() {
   mr_gpio.Init();
   mr_spi.init();
 
-//AP Config Stuff
+//AP Config Stuff that should be updated but worked a year ago.  Sloppy way of not having to save wifi creds on github, should use more recent version
   unsigned long startedAt = millis();
   
   Serial.println("\nStarting");
@@ -384,8 +379,6 @@ void setup() {
   display.print("PSWD:");
   display.println(password);
   display.display();
-
-
 
   if (Router_SSID != "")
   {
