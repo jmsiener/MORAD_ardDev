@@ -134,7 +134,10 @@ WiFiUDP Udp;
 
 OSCErrorCode errorcode;
 
-SemaphoreHandle_t sampleGate;
+SemaphoreHandle_t sampleGate0;
+SemaphoreHandle_t sampleGate1;
+SemaphoreHandle_t sampleGate2;
+SemaphoreHandle_t sampleGate3;
 
 TaskHandle_t osc_udp_rx;
 
@@ -193,25 +196,29 @@ void OSC_UDP_TX(void *pvParameters){
     xQueueReceive(queueCV, &receiveCV, portMAX_DELAY);
     //Serial.println("OSC TX running");
     OSCBundle bundl;
-    if (gateInFlag[0] == 1){
+    if (gateInFlag[0] == 1 && xSemaphoreTake(sampleGate0, portMAX_DELAY) == pdTRUE) {
       bundl.add("/CV0").add(receiveCV[0]);
       bundl.add("/Gate0").add((int)gateIn[0]);
       gateInFlag[0] = 0;
+      xSemaphoreGive(sampleGate0);
       }
-    if (gateInFlag[1] == 1){
+    if (gateInFlag[1] == 1 && xSemaphoreTake(sampleGate1, portMAX_DELAY) == pdTRUE) {
       bundl.add("/CV1").add(receiveCV[1]);
       bundl.add("/Gate1").add((int)gateIn[1]);
       gateInFlag[1] = 0;
+      xSemaphoreGive(sampleGate1);
       }
-    if (gateInFlag[2] == 1){
+    if (gateInFlag[2] == 1 && xSemaphoreTake(sampleGate2, portMAX_DELAY) == pdTRUE) {
       bundl.add("/CV2").add(receiveCV[2]);
       bundl.add("/Gate2").add((int)gateIn[2]);
       gateInFlag[2] = 0;
+      xSemaphoreGive(sampleGate2);
       }
-    if (gateInFlag[3] == 1){
+    if (gateInFlag[3] == 1 && xSemaphoreTake(sampleGate3, portMAX_DELAY) == pdTRUE){
       bundl.add("/CV3").add(receiveCV[3]);
       bundl.add("/Gate3").add((int)gateIn[3]);
       gateInFlag[3] = 0;
+      xSemaphoreGive(sampleGate3);
       }
     /*static unsigned long prevMillis = millis();
     if (millis() - prevMillis > 1000)
@@ -262,23 +269,31 @@ void OSC_UDP_TX(void * pvParameters) {   //2-5-2021 figure out how to do this ri
 */
 
 void IRAM_ATTR gateSample0(){  
+  xSemaphoreTakeFromISR(sampleGate0, 0);
   gateIn[0] = !digitalRead(GATEin_0);
   gateInFlag[0] = 1;
+  xSemaphoreGiveFromISR(sampleGate0, NULL);
 }
 
 void IRAM_ATTR gateSample1(){
+  xSemaphoreTakeFromISR(sampleGate1, 0);
   gateIn[1] = !digitalRead(GATEin_1);
   gateInFlag[1] = 1;
+  xSemaphoreGiveFromISR(sampleGate1, NULL);
 }
 
 void IRAM_ATTR gateSample2(){
+  xSemaphoreTakeFromISR(sampleGate2, 0);
   gateIn[2] = !digitalRead(GATEin_2);
   gateInFlag[2] = 1;
+  xSemaphoreGiveFromISR(sampleGate2, NULL);
 }
 
 void IRAM_ATTR gateSample3(){
+  xSemaphoreTakeFromISR(sampleGate3, 0);
   gateIn[3] = !digitalRead(GATEin_3);
   gateInFlag[3] = 1;
+  xSemaphoreGiveFromISR(sampleGate3, NULL);
 }
 
 
@@ -465,7 +480,10 @@ void setup() {
   else
     Serial.println(ESP_wifiManager.getStatus(WiFi.status()));
 
-  sampleGate = xSemaphoreCreateMutex();
+  sampleGate0 = xSemaphoreCreateMutex();
+  sampleGate1 = xSemaphoreCreateMutex();
+  sampleGate2 = xSemaphoreCreateMutex();
+  sampleGate3 = xSemaphoreCreateMutex();
 
   queueCV = xQueueCreate( 1, 8);
 
@@ -497,7 +515,7 @@ void setup() {
       "SampleCV", /* name of task. */
       1650,      /* Stack size of task */
       NULL,       /* parameter of the task */
-      3,          /* priority of the task */
+      1,          /* priority of the task */
       &cvSample,  /* Task handle to keep track of created task */
       1);         /* pin task to core 1 */
 
