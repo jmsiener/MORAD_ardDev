@@ -1,2 +1,2 @@
 # MORAD_ardDev
-Trying to get something out of the ESP32 based Motivation Radio
+Currently receives OSC like rheslip's original sketch.  Now it also sends OSC.  
